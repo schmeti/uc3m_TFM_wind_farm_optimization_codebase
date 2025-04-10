@@ -77,6 +77,10 @@ class FeedForwardNN(nn.Module):
 
 
 class DistFCNN(nn.Module):
+    """
+    Feedforward Neural Network with relu activation function
+    """
+
     def __init__(self, input_size, output_size, hidden_layers, hidden_size, drop):
         super().__init__()
         self.input_size = input_size
@@ -109,7 +113,10 @@ class DistFCNN(nn.Module):
         )
         
     def forward(self, x):
-        
+
+        """
+        Forward pass of the model to calculate mean and standard deviation.
+        """
         for lin, d in zip(self.lin_layers, self.droput_layers):
             x = F.relu(lin(x))
             x = d(x)
@@ -144,10 +151,14 @@ def extract_layer(weight, bias, l):
     return df_sub
 
 def constraint_extrapolation_MLP(weight, bias, names):
+    """
+    generate constraints from list of weights and biases
+    """
+
     n_layers = len(names)
-    constraints = pd.concat([extract_layer(weight, bias, l) for l in range(n_layers)],axis=0)
+    constraints = pd.concat([extract_layer(weight, bias, l) for l in range(n_layers)],axis=0) # generate constraints df
     cols_to_move = ['intercept', 'layer', 'node']
-    constraints = constraints[cols_to_move + [col for col in constraints.columns if col not in cols_to_move]]
+    constraints = constraints[cols_to_move + [col for col in constraints.columns if col not in cols_to_move]] # move cols to front
     return constraints
 
 

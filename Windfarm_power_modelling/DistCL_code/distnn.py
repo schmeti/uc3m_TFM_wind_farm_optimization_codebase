@@ -11,6 +11,10 @@ from sklearn.model_selection import train_test_split
 from utils import *
 
 class qdnn(object):
+
+    """
+    Class to train a feedforward neural network with Gaussian NLL loss.
+    """
     
     def __init__(self, X_train, X_val, X_test, y_train, y_val, y_test, n_hidden, n_nodes, drop, iters, learning_rate):
         self.X_train, self.X_val, self.X_test = X_train, X_val, X_test
@@ -24,6 +28,7 @@ class qdnn(object):
     
     def train(self):
         
+        # wrap Data into Dataloades
         train_ds = TabularDataset(self.X_train, self.y_train)
         val_ds = TabularDataset(self.X_val, self.y_val)
         test_ds = TabularDataset(self.X_test, self.y_test)
@@ -33,30 +38,34 @@ class qdnn(object):
         test_dl = DataLoader(test_ds, batch_size=len(test_ds))
         
         lr = self.learning_rate
-        wd = 0
         
-        seed = 0
+        # set seed and empty cache
+        seed = 0 #################### Seed Hardcoded !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         torch.cuda.empty_cache()
         np.random.seed(seed)
         torch.manual_seed(seed)
-        
         torch.cuda.empty_cache()
-        criterion = nn.GaussianNLLLoss()
+
+        # Define Gaussian Negative Log Likelihood as Lodd function
+        criterion = nn.GaussianNLLLoss() 
         
-        
+        # define model as Distributional Neural Network as defined in utils.py
         model = DistFCNN(input_size=self.X_train.shape[1], output_size=2, hidden_layers=self.n_hidden, hidden_size=self.n_nodes, drop=self.drop).to(device)
         
+        # Define Optimizer (Adam)
+        wd = 0
         optimizer = optim.Adam(model.parameters(), lr = lr, weight_decay=wd)
         
-        def weights_init_uniform_rule(m):
-            classname = m.__class__.__name__
-            # for every Linear layer in a model..
-            if classname.find('Linear') != -1:
-                # get the number of the inputs
-                n = m.in_features
-                y = 1.0/np.sqrt(n)
-                m.weight.data.uniform_(-y, y)
-                m.bias.data.fill_(0)
+        # Initialize weights depending on layer type
+        # def weights_init_uniform_rule(m):
+        #     classname = m.__class__.__name__
+        #     # for every Linear layer in a model..
+        #     if classname.find('Linear') != -1:
+        #         # get the number of the inputs
+        #         n = m.in_features
+        #         y = 1.0/np.sqrt(n)
+        #         m.weight.data.uniform_(-y, y)
+        #         m.bias.data.fill_(0)
         
         #import torch.nn.init as weight_init
         #for name, param in model.named_parameters(): 
@@ -67,6 +76,7 @@ class qdnn(object):
         print(model)
         print(device)
         
+        # Train the model
         best_loss = float("inf")
         for epoch in range(self.iters):
             ###### Training ######
@@ -77,13 +87,13 @@ class qdnn(object):
                 y = y.to(device)
                 pred, sd = model(cont_x)
                 loss = criterion(pred, y, sd**2)
-                loss.backward()
-                optimizer.step()
+                loss.backward() # backpropagation (compute gradients)
+                optimizer.step() # update weights
             
             ###### Validation ######
             model = model.eval()
             val_loss = 0
-            with torch.no_grad():
+            with torch.no_grad(): # prevent gradient computation
                 for y, cont_x in val_dl:
                     cont_x = cont_x.to(device)
                     y  = y.to(device)
@@ -91,17 +101,19 @@ class qdnn(object):
                     loss = criterion(pred, y, sd**2)
                     val_loss += loss.item()
             
+            # average loss over all batches and save if best model 
             val_loss /= float(len(val_dl))
             if val_loss < best_loss:
                 torch.save(model.state_dict(), 'best_model.pt')
                 best_loss = val_loss
                 last_save = epoch
             
+            # print loss every 500 epochs
             if (epoch%500) == 0:
                 print('epoch', epoch, 'loss', val_loss)
         
+        # Load best model and evaluate on test set
         model.load_state_dict(torch.load('best_model.pt'))
-        
         model = model.eval()
         with torch.no_grad():
             for y, cont_x in test_dl:
