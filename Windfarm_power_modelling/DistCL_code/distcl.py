@@ -135,12 +135,17 @@ class distcl(object):
         # Loop over predictions
         for n in range(self.n_preds):
 
+            print(self.n_preds)
+
             # Get Variables 
             max_layer = max(constaints['layer'])
             nodes_input = range(len(self.X_train.columns))
 
+            print(self.X_train.columns)
+
             # scale X
             v_input = [(opt_model.x[name,n]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
+            # TODO: Modify input to have decision variable 
             
             # Loop over layers
             for l in range(max_layer):
@@ -191,7 +196,7 @@ class distcl(object):
         if deterministic == False:
             np.random.seed(0) # Seed hardcoded !!!!!!
             z_vals = np.random.normal(size=n_scenarios) # draw samples from standard normal (generate noise)
-            
+
             for n in range(self.n_preds):
                 for w in range(1, n_scenarios + 1):
                     opt_model.add_component(outcome + '_pred' + str(n) + '_sce' + str(w), Constraint(rule=opt_model.y[outcome, n, w] == (z_vals[w-1] * opt_model.y[outcome, n,'sd'] + opt_model.y[outcome, n,'mean'])*self.y_std + self.y_mean))
