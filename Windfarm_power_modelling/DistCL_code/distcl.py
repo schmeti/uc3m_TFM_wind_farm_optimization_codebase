@@ -134,7 +134,9 @@ class distcl(object):
         
         # Loop over predictions
         for n in range(self.n_preds):
-
+            
+            n = n+1
+            
             print(self.n_preds)
 
             # Get Variables 
@@ -144,7 +146,7 @@ class distcl(object):
             print(self.X_train.columns)
 
             # scale X
-            v_input = [(opt_model.x[name,n]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
+            v_input = [(opt_model.x[name]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
             # TODO: Modify input to have decision variable 
             
             # Loop over layers
