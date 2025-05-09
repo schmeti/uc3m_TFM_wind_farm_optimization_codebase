@@ -233,13 +233,13 @@ class distcl(object):
         # Loop over predictions
         for w in range(1, n_scenarios + 1):
             
-            print(self.n_preds)
+            print("Secenario ", w, "embedded")
             n = 0
+            
             # Get Variables 
             max_layer = max(constaints['layer'])
             nodes_input = range(len(self.X_train.columns))
 
-            print(self.X_train.columns)
 
             # scale X
             v_input = [(opt_model.x[name,w]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
