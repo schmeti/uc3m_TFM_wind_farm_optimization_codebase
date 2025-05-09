@@ -1,6 +1,7 @@
 
 from floris import FlorisModel
 import pandas as pd
+import numpy as np
 
 ### Configure & Run Simulation
 def two_turbine_simulation(fmodel: FlorisModel, 
@@ -53,17 +54,21 @@ def two_turbine_simulation_data_generation(fmodel: FlorisModel,
                                                                 wind_directions=wind_directions, 
                                                                 turbulence_intensities=turbulence_intensities)
 
-            # Create a new row with the simulation results
-            new_row = pd.DataFrame({'x_turb2': [x_turb2], 
-                                    'y_turb2': [y_turb2],
-                                    'wind_speed': wind_speeds,
-                                    'wind_direction': wind_directions,
-                                    'turbulence_intensity': turbulence_intensities,
-                                    'turbine1_power': turbine_powers[0][0],
-                                    'turbine2_powers': turbine_powers[0][1], 
-                                    'farm_power': farm_power[0]},
-                                    dtype=dtype)
-            data = pd.concat([data, new_row], ignore_index=True)
+            # Loop through all combinations of wind speeds, wind directions, and turbulence intensities
+            for i, wind_direction in enumerate(np.unique(wind_directions)):
+                for j, wind_speed in enumerate(np.unique(wind_speeds)):
+                    for k, turbulence_intensity in enumerate(np.unique(turbulence_intensities)):
+                        # Create a new row with the simulation results
+                        new_row = pd.DataFrame({'x_turb2': [x_turb2], 
+                                                'y_turb2': [y_turb2],
+                                                'wind_speed': [wind_speed],
+                                                'wind_direction': [wind_direction],
+                                                'turbulence_intensity': [turbulence_intensity],
+                                                'turbine1_power': [turbine_powers[i][0]],
+                                                'turbine2_powers': [turbine_powers[i][1]], 
+                                                'farm_power': [farm_power[i]]},
+                                                dtype=dtype)
+                        data = pd.concat([data, new_row], ignore_index=True)
     
     return data
 
