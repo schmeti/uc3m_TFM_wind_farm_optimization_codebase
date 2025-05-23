@@ -101,12 +101,9 @@ class DistFCNN(nn.Module):
             ]
         )
         
-        # Output mean Layer
+        # Output target Layer
         self.output_mean_layer = nn.Linear(self.hidden_size, 1)
-        
-        # Output var Layer
-        self.output_sd_layer = nn.Linear(self.hidden_size, 1)
-        
+
         # Dropout Layers
         self.droput_layers = nn.ModuleList(
             [nn.Dropout(self.drop) for layer in self.lin_layers]
@@ -120,9 +117,8 @@ class DistFCNN(nn.Module):
         for lin, d in zip(self.lin_layers, self.droput_layers):
             x = F.relu(lin(x))
             x = d(x)
-        mean = self.output_mean_layer(x)
-        sd = F.relu(self.output_sd_layer(x))
-        return mean, sd
+        y_pred = self.output_mean_layer(x)
+        return y_pred
 
 
 

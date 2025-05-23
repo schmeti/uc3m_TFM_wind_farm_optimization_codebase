@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
 from distnn import *
@@ -6,7 +7,10 @@ from pyomo import environ
 from pyomo.environ import *
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-scaler = StandardScaler()
+from sklearn.metrics import mean_squared_error
+scaler_X = StandardScaler()
+scaler_y = StandardScaler()
+
 
 
 class distcl(object):
@@ -61,34 +65,111 @@ class distcl(object):
         ### Scale Data
 
         # fit scaler to training data: X
-        self.X_train = pd.DataFrame(scaler.fit_transform(self.X_train), columns = scaler.feature_names_in_)
+        self.X_train = pd.DataFrame(scaler_X.fit_transform(self.X_train), columns = scaler_X.feature_names_in_)
         
-        self.X_mean = scaler.mean_ # mean
-        self.X_std = scaler.scale_ # std
+        self.X_mean = scaler_X.mean_ # mean
+        self.X_std = scaler_X.scale_ # std
+        self.scaler_X = scaler_X
+
         
         # scale validation and test data: X
-        self.X_val = pd.DataFrame(scaler.transform(self.X_val), columns = scaler.feature_names_in_)
-        self.X_test = pd.DataFrame(scaler.transform(self.X_test), columns = scaler.feature_names_in_)
+        self.X_val = pd.DataFrame(scaler_X.transform(self.X_val), columns = scaler_X.feature_names_in_)
+        self.X_test = pd.DataFrame(scaler_X.transform(self.X_test), columns = scaler_X.feature_names_in_)
         
         # fit scaler to training data: y
-        self.y_train = pd.DataFrame(scaler.fit_transform(self.y_train.values.reshape(-1, 1)), columns = [y.name])
-        self.y_mean = scaler.mean_
-        self.y_std = scaler.scale_
+        self.y_train = pd.DataFrame(scaler_y.fit_transform(self.y_train.values.reshape(-1, 1)), columns = [y.name])
+        self.y_mean = scaler_y.mean_
+        self.y_std = scaler_y.scale_
         
         # scale validation and test data: y
-        self.y_val = pd.DataFrame(scaler.transform(self.y_val.values.reshape(-1, 1)), columns = [y.name])
-        self.y_test = pd.DataFrame(scaler.transform(self.y_test.values.reshape(-1, 1)), columns = [y.name])
+        self.y_val = pd.DataFrame(scaler_y.transform(self.y_val.values.reshape(-1, 1)), columns = [y.name])
+        self.y_test = pd.DataFrame(scaler_y.transform(self.y_test.values.reshape(-1, 1)), columns = [y.name])
         
         # init params
         self.n_preds = n_preds
         self.alpha = None
+        self.scaler_y = scaler_y
+
         
     # train model defined in distnn.py
     def train(self, n_hidden = 2, n_nodes = 50, drop = 0.05, iters = 4000, learning_rate = 1e-3):
         nn_tool = qdnn(self.X_train, self.X_val, self.X_test, self.y_train, self.y_val, self.y_test, n_hidden = n_hidden, n_nodes = n_nodes, drop = drop, iters = iters, learning_rate = learning_rate)
-        model, preds_test, vars_test, y_test = nn_tool.train()
+        model, preds_test, y_test = nn_tool.train()
         
-        return model, preds_test, vars_test, y_test
+        # save model
+        self.model = model
+
+        return model, preds_test, y_test
+    
+    def optimize_nn(self, param_grid, iters=5000, drop=0.05, learning_rate=1e-4, plot=False):
+
+        best_params = None
+        best_rmse = float('inf')
+        grid_search = []
+
+        for n_hidden in param_grid['n_hidden']:
+            for n_nodes in param_grid['n_nodes']:
+                print(f"Training with n_hidden={n_hidden}, n_nodes={n_nodes}")
+
+
+                model, preds_test, y_test = self.train(
+                    n_hidden=n_hidden,
+                    n_nodes=n_nodes,
+                    iters=iters,
+                    drop=drop,
+                    learning_rate=learning_rate
+                )
+
+                rmse = np.sqrt(mean_squared_error(y_test, preds_test))
+                grid_search.append({'n_hidden': n_hidden, 'n_nodes': n_nodes, 'rmse': rmse})
+
+                if rmse < best_rmse:
+                    best_rmse = rmse
+                    best_params = {'n_hidden': n_hidden, 'n_nodes': n_nodes}
+            
+        if plot:
+            # Convert grid_search to a DataFrame for easier plotting
+            grid_search_df = pd.DataFrame(grid_search)
+
+            # Plot the grid search results
+            plt.figure(figsize=(10, 6))
+            for n_hidden in grid_search_df['n_hidden'].unique():
+                subset = grid_search_df[grid_search_df['n_hidden'] == n_hidden]
+                plt.plot(subset['n_nodes'], subset['rmse'], marker='o', label=f'n_hidden={n_hidden}')
+
+            plt.xlabel('Number of Nodes')
+            plt.ylabel('RMSE')
+            plt.title('Grid Search Results')
+            plt.legend()
+            plt.show()
+
+        return best_params, best_rmse, grid_search
+
+
+    def predict(self, X):
+        """
+        Predict using the trained DistFCNN model.
+
+        Parameters:
+            X: pandas DataFrame or numpy array of input features
+
+        Returns:
+            numpy.ndarray: Predicted values
+        """
+        X = X.reindex(sorted(X.columns), axis=1)
+        X_pred_scaled = pd.DataFrame(self.scaler_X.transform(X), columns=scaler_X.feature_names_in_)
+
+        # Convert to torch tensor
+        X_tensor = torch.from_numpy(X_pred_scaled.values.astype(np.float32))
+        self.model.eval()
+        with torch.no_grad():
+            preds = self.model(X_tensor)
+        
+        y_pred = preds.numpy()
+        y_pred_invscaled = self.scaler_y.inverse_transform(y_pred)
+
+        return y_pred_invscaled
+    
     
     # build constraints for the optimization problem from Neural Network
     def constraint_build(self, fitted_model):
@@ -113,6 +194,7 @@ class distcl(object):
         
         return constraints
     
+
     
     def const_embed(self, opt_model, constaints, outcome, n_scenarios = 1, deterministic = False):
         

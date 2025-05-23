@@ -47,31 +47,14 @@ class qdnn(object):
         torch.cuda.empty_cache()
 
         # Define Gaussian Negative Log Likelihood as Lodd function
-        criterion = nn.GaussianNLLLoss() 
+        criterion = nn.MSELoss()
         
         # define model as Distributional Neural Network as defined in utils.py
-        model = DistFCNN(input_size=self.X_train.shape[1], output_size=2, hidden_layers=self.n_hidden, hidden_size=self.n_nodes, drop=self.drop).to(device)
+        model = DistFCNN(input_size=self.X_train.shape[1], output_size=1, hidden_layers=self.n_hidden, hidden_size=self.n_nodes, drop=self.drop).to(device)
         
         # Define Optimizer (Adam)
         wd = 0
         optimizer = optim.Adam(model.parameters(), lr = lr, weight_decay=wd)
-        
-        # Initialize weights depending on layer type
-        # def weights_init_uniform_rule(m):
-        #     classname = m.__class__.__name__
-        #     # for every Linear layer in a model..
-        #     if classname.find('Linear') != -1:
-        #         # get the number of the inputs
-        #         n = m.in_features
-        #         y = 1.0/np.sqrt(n)
-        #         m.weight.data.uniform_(-y, y)
-        #         m.bias.data.fill_(0)
-        
-        #import torch.nn.init as weight_init
-        #for name, param in model.named_parameters(): 
-        #    weight_init.normal_(param)
-        
-        #model.apply(weights_init_uniform_rule)
         
         print(model)
         print(device)
@@ -85,8 +68,8 @@ class qdnn(object):
                 optimizer.zero_grad()
                 cont_x = cont_x.to(device)
                 y = y.to(device)
-                pred, sd = model(cont_x)
-                loss = criterion(pred, y, sd**2)
+                pred = model(cont_x)
+                loss = criterion(pred, y)
                 loss.backward() # backpropagation (compute gradients)
                 optimizer.step() # update weights
             
@@ -97,8 +80,8 @@ class qdnn(object):
                 for y, cont_x in val_dl:
                     cont_x = cont_x.to(device)
                     y  = y.to(device)
-                    pred, sd = model(cont_x)
-                    loss = criterion(pred, y, sd**2)
+                    pred = model(cont_x)
+                    loss = criterion(pred, y)
                     val_loss += loss.item()
             
             # average loss over all batches and save if best model 
@@ -119,13 +102,12 @@ class qdnn(object):
             for y, cont_x in test_dl:
                 cont_x = cont_x.to(device)
                 y  = y.to(device)
-                pred, sd = model(cont_x)
+                pred = model(cont_x)
         preds_test = pred.detach().cpu().numpy()
-        sd_test = sd.detach().cpu().numpy()
         y_test = y.detach().cpu().numpy()
         
-        print('NN fitting process finished with a validation GAUSSIANNLL loss of', best_loss, 'in epoch', last_save)
-        return model, preds_test, sd_test, y_test
-
+        print('NN fitting process finished with a validation MSE loss of', best_loss, 'in epoch', last_save)
+        return model, preds_test, y_test
+    
 
 
