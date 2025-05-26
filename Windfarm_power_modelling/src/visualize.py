@@ -21,8 +21,11 @@ def plot_two_turbine_results(data, zfeature='farm_power', model_opt=None,dpoint_
         plt.scatter(x, y, color='black', s=dpoint_size, label='Data Points', alpha=0.7, zorder=5)
 
     if model_opt is not None:
-        circle = plt.Circle((0, 0), 100, color='black', fill=False, linestyle='-', label='Min Distance Constraint', linewidth=4)
+        circle = plt.Circle((0, 0), model_opt.min_dist, color='black', fill=False, linestyle='-', label='Constraints', linewidth=4)
         plt.gca().add_artist(circle)
+
+        plt.axhline(model_opt.y_max, color='black', linestyle='-', linewidth=4)
+        plt.axvline(model_opt.x_max, color='black', linestyle='-', linewidth=4)
 
         plt.scatter(0, 0, color='red', label='Turbine 1', s=500, edgecolor='black', zorder=10)
         optimal_x = pyo.value(model_opt.x['x_turb2'])

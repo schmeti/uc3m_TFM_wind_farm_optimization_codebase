@@ -118,7 +118,7 @@ class distcl(object):
         for n in range(self.n_preds):
             max_layer = max(constaints['layer'])
             nodes_input = range(len(self.X_train.columns))
-            v_input = [(opt_model.x[name,n]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
+            v_input = [(opt_model.x[name]-self.X_mean[i])/self.X_std[i] for i,name in enumerate(self.X_train.columns)]
             
             for l in range(max_layer):
                 df_layer = constaints.query('layer == %d' % l)

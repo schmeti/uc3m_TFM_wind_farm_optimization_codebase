@@ -135,7 +135,7 @@ class distcl(object):
         # Loop over predictions
         for n in range(self.n_preds):
             
-            n = n+1
+            #n = n+1
             
             print(self.n_preds)
 
