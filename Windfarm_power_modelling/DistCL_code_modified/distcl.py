@@ -314,7 +314,7 @@ class distcl(object):
         opt_model.v_ind = Var(Any, dense=False, domain=Binary) #binary variable for constraints composing activation value
         
         # Loop over predictions
-        for w in range(1, n_scenarios + 1):
+        for w in range(n_scenarios):
             
             print("Secenario ", w, "embedded")
             n = 0
@@ -329,7 +329,7 @@ class distcl(object):
             # TODO: Modify input to have decision variable 
             
             # Loop over layers
-            for l in range(max_layer):
+            for l in range(max_layer+1):
                 # get layer from df
                 df_layer = constaints.query('layer == %d' % l)
 
@@ -341,19 +341,19 @@ class distcl(object):
                 nodes = df_layer['node']
                 
                 # if output layer, add constraints corresponding to Mean and Standard deviation (equality constraints)
-                if l == max_layer-1:
+                if l == max_layer:
                     node = nodes.iloc[0]
 
                     # constraint for mean 
                     opt_model.add_component('Mean_est' + str(w), Constraint(rule=opt_model.y[outcome, w,'mean'] == (sum(v_input[i] * coeffs_layer[node, i] for i in nodes_input) + intercepts_layer[node])))
                     
-                    # constraint for sd
-                    l = l+1
-                    df_layer = constaints.query('layer == %d' % l)
-                    max_nodes = [k for k in df_layer.columns if 'node_' in k]
-                    coeffs_layer = np.array(df_layer.loc[:, max_nodes].dropna(axis=1))
-                    intercepts_layer = np.array(df_layer['intercept'])
-                    opt_model.add_component('Var_est' + str(w), Constraint(rule=opt_model.y[outcome, w,'sd'] == (sum(v_input[i] * coeffs_layer[node, i] for i in nodes_input) + intercepts_layer[node])))
+                    # # constraint for sd
+                    # l = l+1
+                    # df_layer = constaints.query('layer == %d' % l)
+                    # max_nodes = [k for k in df_layer.columns if 'node_' in k]
+                    # coeffs_layer = np.array(df_layer.loc[:, max_nodes].dropna(axis=1))
+                    # intercepts_layer = np.array(df_layer['intercept'])
+                    # opt_model.add_component('Var_est' + str(w), Constraint(rule=opt_model.y[outcome, w,'sd'] == (sum(v_input[i] * coeffs_layer[node, i] for i in nodes_input) + intercepts_layer[node])))
                 
                 # else add constraints moving through network (inequality constraints)
                 else:
@@ -368,14 +368,18 @@ class distcl(object):
                         opt_model.add_component('constraint_2_layer' + str(l) + '_node' + str(node)+ '_sce'+ str(w)+ outcome,
                                             Constraint(rule=opt_model.v[(outcome, l, node, w)] <= M_u * (opt_model.v_ind[(outcome, l, node, w)])))
                         opt_model.add_component('constraint_3_layer' + str(l) + '_node' + str(node)+ '_sce'+ str(w)+ outcome,
-                                            Constraint(rule=opt_model.v[(outcome, l, node, w)] <= sum(v_input[i] * coeffs_layer[node, i] for i in nodes_input) + intercepts_layer[node] - M_l * (1 - opt_model.v_ind[(outcome, l, node, n)])))
+                                            Constraint(rule=opt_model.v[(outcome, l, node, w)] <= sum(v_input[i] * coeffs_layer[node, i] for i in nodes_input) + intercepts_layer[node] - M_l * (1 - opt_model.v_ind[(outcome, l, node, w)])))
+                    
                     ## Prepare nodes_input for next layer
                     nodes_input = nodes
                     v_input = v_pos_list
+                
+                print("Layer ", l, "embedded for prediction ", n, " of outcome ", outcome)
   
+
         # Elif deterministic, take mean value and scale back to original scale
 
         for n in range(self.n_preds):
-            for w in range(1, n_scenarios + 1):
+            for w in range(n_scenarios):
                 opt_model.add_component(outcome + '_pred' + str(n) + '_sce' + str(w), Constraint(rule=opt_model.y[outcome, n, w] == opt_model.y[outcome, w,'mean']*self.y_std + self.y_mean))
 
