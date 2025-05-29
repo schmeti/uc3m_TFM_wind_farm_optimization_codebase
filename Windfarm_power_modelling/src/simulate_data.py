@@ -92,18 +92,19 @@ def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence
         'probability': probabilities
     })
 
-    wind_df = wind_df[wind_df['probability'] > 0].reset_index(drop=True)
     wind_df.insert(0, 'x_turb2', np.nan)
     wind_df.insert(1, 'y_turb2', np.nan)
     wind_df['wind_speed'] = wind_speed
     wind_df['turbulence_intensity'] = turbulence_intensity
+    wind_df = wind_df[wind_df['probability'] > 0.001].reset_index(drop=True)
+
     
     # Plot
     if plot:
         bar_width = step
         plt.figure(figsize=(10, 5))
         plt.bar(wind_df['wind_direction'], wind_df['probability'], width=bar_width, align='center', color='lightgrey', edgecolor='black')
-        plt.title('Discrete Wrapped Normal Distribution of Wind Direction\n(mean=270°, sd=20°)')
+        plt.title(f'mean=270°, sd={sd}°')
         plt.xlabel('Wind Direction (Degrees)')
         plt.ylabel('Probability')
         plt.xticks(np.arange(0, 361, 30))
