@@ -2,6 +2,9 @@
 from floris import FlorisModel
 import pandas as pd
 import numpy as np
+from scipy.stats import norm
+import matplotlib.pyplot as plt
+
 
 ### Configure & Run Simulation
 def two_turbine_simulation(fmodel: FlorisModel, 
@@ -73,5 +76,40 @@ def two_turbine_simulation_data_generation(fmodel: FlorisModel,
     return data
 
 
+def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence_intensity=0.06, step=10, plot=True):
+    angles = np.arange(0, 360, step)
 
+    def circular_dist(x, mu):
+        d = np.abs(x - mu) % 360
+        return np.minimum(d, 360 - d)
+
+    distances = circular_dist(angles, mu)
+    densities = norm.pdf(distances, loc=0, scale=sd)
+    probabilities = densities / np.sum(densities)
+
+    wind_df = pd.DataFrame({
+        'wind_direction': angles,
+        'probability': probabilities
+    })
+
+    wind_df = wind_df[wind_df['probability'] > 0].reset_index(drop=True)
+    wind_df.insert(0, 'x_turb2', np.nan)
+    wind_df.insert(1, 'y_turb2', np.nan)
+    wind_df['wind_speed'] = wind_speed
+    wind_df['turbulence_intensity'] = turbulence_intensity
+    
+    # Plot
+    if plot:
+        bar_width = step
+        plt.figure(figsize=(10, 5))
+        plt.bar(wind_df['wind_direction'], wind_df['probability'], width=bar_width, align='center', color='lightgrey', edgecolor='black')
+        plt.title('Discrete Wrapped Normal Distribution of Wind Direction\n(mean=270°, sd=20°)')
+        plt.xlabel('Wind Direction (Degrees)')
+        plt.ylabel('Probability')
+        plt.xticks(np.arange(0, 361, 30))
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        plt.show()
+
+    return wind_df
 

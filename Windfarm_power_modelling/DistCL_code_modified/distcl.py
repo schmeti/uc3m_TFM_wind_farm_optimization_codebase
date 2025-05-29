@@ -122,7 +122,7 @@ class distcl(object):
                 )
 
                 rmse = np.sqrt(mean_squared_error(y_test, preds_test))
-                grid_search.append({'n_hidden': n_hidden, 'n_nodes': n_nodes, 'rmse': rmse})
+                grid_search.append({'n_hidden': n_hidden, 'n_nodes': n_nodes, 'mse': rmse})
 
                 if rmse < best_rmse:
                     best_rmse = rmse
@@ -174,6 +174,43 @@ class distcl(object):
 
         return y_pred_invscaled
     
+
+    def expected_power_for_location(self, x_turb2_value, y_turb2_value, wind_df):
+
+        """
+        Calculate the expected power for a given location based on wind distribution data.
+        Parameters:
+            x_turb2_value: x-coordinate of the turbine location
+            y_turb2_value: y-coordinate of the turbine location
+            wind_df: pandas DataFrame containing wind distribution data with columns:
+                     'wind_direction', 'wind_speed', 'turbulence_intensity', 'probability'
+        Returns:
+            expected_power: float, the expected power at the given location
+        """
+        # Get wind distribution data
+        wind_directions = wind_df['wind_direction'].values
+        wind_speed_value = wind_df['wind_speed'].values
+        turbulence_intensity_value = wind_df['turbulence_intensity'].values
+        probabilities = wind_df['probability'].values
+
+        # Create the DataFrame
+        data_pred = pd.DataFrame({
+            'x_turb2': x_turb2_value,
+            'y_turb2': y_turb2_value,
+            'wind_speed': wind_speed_value,
+            'wind_direction': wind_directions,
+            'turbulence_intensity': turbulence_intensity_value,
+            'probability': probabilities
+        })
+        generated_data = pd.DataFrame(data_pred, columns=["x_turb2", "y_turb2", "wind_speed", "wind_direction", "turbulence_intensity"])
+        
+        # predict
+        data_pred["pred_power"] = self.predict(X=generated_data[["x_turb2", "y_turb2", "wind_speed", "wind_direction", "turbulence_intensity"]])
+        
+        # calculate expectation
+        expected_power = (data_pred["pred_power"] * data_pred["probability"]).sum()
+
+        return expected_power
     
     # build constraints for the optimization problem from Neural Network
     def constraint_build(self, fitted_model):
