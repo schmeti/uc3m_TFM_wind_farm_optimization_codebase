@@ -26,7 +26,7 @@ class qdnn(object):
         self.learning_rate = learning_rate
         
     
-    def train(self):
+    def train(self,patience = None):
         
         # wrap Data into Dataloades
         train_ds = TabularDataset(self.X_train, self.y_train)
@@ -58,9 +58,11 @@ class qdnn(object):
         
         print(model)
         print(device)
-        
+
         # Train the model
         best_loss = float("inf")
+        last_save = 0 
+
         for epoch in range(self.iters):
             ###### Training ######
             model = model.train()
@@ -70,13 +72,13 @@ class qdnn(object):
                 y = y.to(device)
                 pred = model(cont_x)
                 loss = criterion(pred, y)
-                loss.backward() # backpropagation (compute gradients)
-                optimizer.step() # update weights
+                loss.backward()
+                optimizer.step()
             
             ###### Validation ######
             model = model.eval()
             val_loss = 0
-            with torch.no_grad(): # prevent gradient computation
+            with torch.no_grad():
                 for y, cont_x in val_dl:
                     cont_x = cont_x.to(device)
                     y  = y.to(device)
@@ -84,16 +86,23 @@ class qdnn(object):
                     loss = criterion(pred, y)
                     val_loss += loss.item()
             
-            # average loss over all batches and save if best model 
-            val_loss /= float(len(val_dl))
+            val_loss /= float(len(val_dl))  # average validation loss
+            
             if val_loss < best_loss:
                 torch.save(model.state_dict(), 'best_model.pt')
                 best_loss = val_loss
                 last_save = epoch
             
-            # print loss every 500 epochs
-            if (epoch%500) == 0:
+            # Print loss every 500 epochs
+            if (epoch % 500) == 0:
                 print('epoch', epoch, 'loss', val_loss)
+
+            # Early stopping condition
+            if patience is not None:
+                if epoch - last_save >= patience:
+                    print(f"Early stopping at epoch {epoch}. Best loss: {best_loss:.4f}")
+                    break
+
         
         # Load best model and evaluate on test set
         model.load_state_dict(torch.load('best_model.pt'))

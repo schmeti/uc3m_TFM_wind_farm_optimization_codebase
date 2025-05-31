@@ -76,8 +76,24 @@ def two_turbine_simulation_data_generation(fmodel: FlorisModel,
     return data
 
 
-def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence_intensity=0.06, step=10, plot=True):
-    angles = np.arange(0, 360, step)
+def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence_intensity=0.06, step=10, nquantile=None,epsilon = 1e-6, plot=True):
+    if nquantile is not None:
+        quantiles = np.linspace(epsilon, 1-epsilon, nquantile + 1)
+        lower_bounds = norm.ppf(quantiles[:-1], loc=mu, scale=sd) % 360
+        upper_bounds = norm.ppf(quantiles[1:], loc=mu, scale=sd) % 360
+        angles = []
+        for lb, ub in zip(lower_bounds, upper_bounds):
+            if lb < ub:
+                angle_range = np.linspace(lb, ub, 100)
+            else:
+                angle_range = np.linspace(lb, ub + 360, 100) % 360
+            weights = norm.pdf(angle_range, loc=mu, scale=sd)
+            expected_angle = np.angle(np.sum(np.exp(1j * np.deg2rad(angle_range)) * weights), deg=True) % 360 
+            angles.append(expected_angle)
+        angles = np.array(angles)
+    else:
+        angles = np.arange(0, 360, step)
+    angles = angles[~np.isnan(angles)]
 
     def circular_dist(x, mu):
         d = np.abs(x - mu) % 360
@@ -96,15 +112,34 @@ def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence
     wind_df.insert(1, 'y_turb2', np.nan)
     wind_df['wind_speed'] = wind_speed
     wind_df['turbulence_intensity'] = turbulence_intensity
-    wind_df = wind_df[wind_df['probability'] > 0.001].reset_index(drop=True)
+    wind_df = wind_df[wind_df['probability'] > 0.001].reset_index(drop=True) # remove very low probabilities
 
-    
     # Plot
     if plot:
-        bar_width = step
         plt.figure(figsize=(10, 5))
-        plt.bar(wind_df['wind_direction'], wind_df['probability'], width=bar_width, align='center', color='lightgrey', edgecolor='black')
-        plt.title(f'mean=270°, sd={sd}°')
+        if nquantile is not None:
+            for lb, ub, prob in zip(lower_bounds, upper_bounds, wind_df['probability']):
+                # Handle wrap-around at 360 degrees
+                if lb < ub:
+                    plt.bar(x=lb + (ub - lb) / 2, height=prob, width=(ub - lb), align='center',
+                            color='lightgrey', edgecolor='black', linewidth=1)
+                else:
+                    # Bar wraps around 360
+                    width1 = 360 - lb
+                    width2 = ub
+                    plt.bar(x=lb + width1 / 2, height=prob, width=width1, align='center',
+                            color='lightgrey', edgecolor='black', linewidth=1)
+                    plt.bar(x=ub / 2, height=prob, width=width2, align='center',
+                            color='lightgrey', edgecolor='black', linewidth=1)
+            for angle in angles:
+                plt.axvline(angle, color='darkgrey', linestyle='--', alpha=0.7)
+            
+        else:
+            bar_width = step
+            plt.figure(figsize=(10, 5))
+            plt.bar(wind_df['wind_direction'], wind_df['probability'], width=bar_width, align='center', color='lightgrey', edgecolor='black')
+
+        plt.title(f'mean={mu}°, sd={sd}°')
         plt.xlabel('Wind Direction (Degrees)')
         plt.ylabel('Probability')
         plt.xticks(np.arange(0, 361, 30))
@@ -113,4 +148,3 @@ def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence
         plt.show()
 
     return wind_df
-

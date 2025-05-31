@@ -93,16 +93,16 @@ class distcl(object):
 
         
     # train model defined in distnn.py
-    def train(self, n_hidden = 2, n_nodes = 50, drop = 0.05, iters = 4000, learning_rate = 1e-3):
+    def train(self, n_hidden = 2, n_nodes = 50, drop = 0.05, iters = 4000, learning_rate = 1e-3, patience = None):
         nn_tool = qdnn(self.X_train, self.X_val, self.X_test, self.y_train, self.y_val, self.y_test, n_hidden = n_hidden, n_nodes = n_nodes, drop = drop, iters = iters, learning_rate = learning_rate)
-        model, preds_test, y_test = nn_tool.train()
+        model, preds_test, y_test = nn_tool.train(patience = patience)
         
         # save model
         self.model = model
 
         return model, preds_test, y_test
     
-    def optimize_nn(self, param_grid, iters=5000, drop=0.05, learning_rate=1e-4, plot=False):
+    def optimize_nn(self, param_grid, iters=5000, drop=0.05, learning_rate=1e-4, patience = None,plot=False):
 
         best_params = None
         best_rmse = float('inf')
@@ -118,7 +118,8 @@ class distcl(object):
                     n_nodes=n_nodes,
                     iters=iters,
                     drop=drop,
-                    learning_rate=learning_rate
+                    learning_rate=learning_rate,
+                    patience = patience
                 )
 
                 rmse = np.sqrt(mean_squared_error(y_test, preds_test))
