@@ -1,0 +1,68 @@
+Solver command line: []
+
+Read LP format model from file /var/folders/2j/t8d8dcsn1tg5sc8l4kz4_4ch0000gn/T/tmpy7n9h5lv.pyomo.lp
+Reading time = 0.02 seconds
+x1: 1384 rows, 924 columns, 33944 nonzeros
+Set parameter Threads to value 8
+Set parameter NonConvex to value 2
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (mac64[x86] - Darwin 24.5.0 24F74)
+
+CPU model: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+Thread count: 6 physical cores, 12 logical processors, using up to 8 threads
+
+Non-default parameters:
+NonConvex  2
+Threads  8
+
+Optimize a model with 1384 rows, 924 columns and 33944 nonzeros
+Model fingerprint: 0x6ef3d1df
+Model has 3 quadratic constraints
+Variable types: 474 continuous, 450 integer (450 binary)
+Coefficient statistics:
+  Matrix range     [3e-07, 1e+03]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [4e-02, 9e-01]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e-03, 5e+03]
+  QRHS range       [1e+04, 1e+04]
+Presolve removed 141 rows and 113 columns
+Presolve time: 0.24s
+Presolved: 1246 rows, 814 columns, 29055 nonzeros
+Presolved model has 2 bilinear constraint(s)
+
+Solving non-convex MIQCP
+
+Variable types: 413 continuous, 401 integer (401 binary)
+
+Root relaxation: objective 3.075902e+04, 1304 iterations, 0.03 seconds (0.06 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 30759.0228    0  110          - 30759.0228      -     -    0s
+     0     0 24679.3922    0  179          - 24679.3922      -     -    0s
+     0     0 24644.2998    0  176          - 24644.2998      -     -    1s
+     0     0 19916.1731    0  267          - 19916.1731      -     -    1s
+     0     0 19410.0265    0  288          - 19410.0265      -     -    1s
+     0     0          -    0               - 19410.0265      -     -    2s
+
+Cutting planes:
+  Learned: 9
+  Cover: 103
+  Implied bound: 180
+  Clique: 127
+  MIR: 238
+  Flow cover: 131
+  RLT: 217
+  Relax-and-lift: 13
+  BQP: 14
+  PSD: 6
+
+Explored 1 nodes (6287 simplex iterations) in 2.67 seconds (1.81 work units)
+Thread count was 8 (of 12 available processors)
+
+Solution count 0
+
+Solve interrupted
+Best objective -, best bound 1.941002647209e+04, gap -
+

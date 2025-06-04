@@ -1,0 +1,91 @@
+Solver command line: []
+
+Read LP format model from file /var/folders/2j/t8d8dcsn1tg5sc8l4kz4_4ch0000gn/T/tmpcejeps4k.pyomo.lp
+Reading time = 0.03 seconds
+x1: 1474 rows, 984 columns, 19904 nonzeros
+Set parameter Threads to value 8
+Set parameter NonConvex to value 2
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (mac64[x86] - Darwin 24.5.0 24F74)
+
+CPU model: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+Thread count: 6 physical cores, 12 logical processors, using up to 8 threads
+
+Non-default parameters:
+NonConvex  2
+Threads  8
+
+Optimize a model with 1474 rows, 984 columns and 19904 nonzeros
+Model fingerprint: 0xa96277fc
+Model has 3 quadratic constraints
+Variable types: 504 continuous, 480 integer (480 binary)
+Coefficient statistics:
+  Matrix range     [2e-05, 1e+03]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [4e-02, 9e-01]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [7e-04, 5e+03]
+  QRHS range       [1e+04, 1e+04]
+Presolve removed 97 rows and 65 columns
+Presolve time: 0.10s
+Presolved: 1380 rows, 922 columns, 18448 nonzeros
+Presolved model has 2 bilinear constraint(s)
+
+Solving non-convex MIQCP
+
+Variable types: 465 continuous, 457 integer (457 binary)
+
+Root relaxation: objective 6.692204e+03, 1929 iterations, 0.03 seconds (0.04 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 6692.20397    0   60          - 6692.20397      -     -    0s
+     0     0 6692.20397    0   60          - 6692.20397      -     -    0s
+     0     0 5959.92547    0  143          - 5959.92547      -     -    0s
+     0     0 5787.44394    0  124          - 5787.44394      -     -    0s
+     0     0 5629.80959    0  210          - 5629.80959      -     -    0s
+     0     0 5618.97047    0  206          - 5618.97047      -     -    0s
+     0     0 5618.96987    0  206          - 5618.96987      -     -    0s
+     0     0 5458.58415    0  231          - 5458.58415      -     -    1s
+     0     0 5458.49163    0  233          - 5458.49163      -     -    1s
+     0     0 5418.21152    0  232          - 5418.21152      -     -    1s
+     0     0 5374.66847    0  271          - 5374.66847      -     -    1s
+     0     0 5366.29626    0  264          - 5366.29626      -     -    1s
+     0     0 5347.89932    0  266          - 5347.89932      -     -    2s
+     0     0 5309.20527    0  267          - 5309.20527      -     -    2s
+     0     0 5309.20527    0  278          - 5309.20527      -     -    2s
+     0     0 5309.20527    0  286          - 5309.20527      -     -    2s
+     0     0 5309.20527    0  288          - 5309.20527      -     -    2s
+     0     0 5309.20527    0  286          - 5309.20527      -     -    3s
+H    0     0                    3481.9427939 5309.20527  52.5%     -    3s
+     0     2 5309.20527    0  286 3481.94279 5309.20527  52.5%     -    4s
+    15    24 3879.55441    4  220 3481.94279 5077.72391  45.8%  1069    5s
+H  309   302                    3482.6829281 5053.52397  45.1%   628    8s
+   412   415 3520.95767   35  147 3482.68293 5053.52397  45.1%   581   10s
+H  766   672                    3482.6829298 4886.75828  40.3%   482   13s
+H 1041   940                    3482.6829325 4837.67167  38.9%   440   15s
+H 1207  1049                    3485.3640406 4832.62305  38.7%   418   16s
+  1661  1384 3833.06166   20  286 3485.36404 4832.62305  38.7%   369   21s
+  1668  1389 3485.74060   50  296 3485.36404 4832.62305  38.7%   368   25s
+
+Cutting planes:
+  Learned: 3
+  Gomory: 4
+  Cover: 33
+  Implied bound: 114
+  Projected implied bound: 260
+  Clique: 11
+  MIR: 304
+  Flow cover: 219
+  RLT: 79
+  Relax-and-lift: 127
+  BQP: 6
+
+Explored 1669 nodes (651121 simplex iterations) in 25.86 seconds (27.94 work units)
+Thread count was 8 (of 12 available processors)
+
+Solution count 7: 3485.36 3485.36 3482.68 ... 3481.94
+
+Solve interrupted
+Best objective 3.485364040618e+03, best bound 4.832623049160e+03, gap 38.6548%
+

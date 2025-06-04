@@ -44,9 +44,10 @@ def plot_two_turbine_results(data, zfeature='farm_power', model_opt=None, dpoint
         
         wind_df = wind_df[wind_df['probability'] > 0.001] 
 
-        for i, angle in enumerate(list(wind_df['wind_direction'].unique()- 180 - 90)):
-            if angle <= 90 and angle >= 0:
-                radians = np.deg2rad(angle)  # Invert direction by 180°
+        for i, angle in enumerate(list(wind_df['wind_direction'].unique())):
+            if (angle <= 90 and angle >= 0) or (angle <= 270 and angle >= 180):
+                
+                radians = np.deg2rad(90-angle)  
                 
                 # Calculate intersection points with plot boundaries
                 # First try to intersect with right edge (x = xlim[1])
@@ -70,12 +71,17 @@ def plot_two_turbine_results(data, zfeature='farm_power', model_opt=None, dpoint
                     y_end = y_top
                     ha = 'center'
                     va = 'bottom' if y_end > 0 else 'top'
-                
-                # Plot the line
-                ax.plot([0, x_end], [0, y_end], linestyle='--', color='gray')
+
+
+
+                # Plot the line, highlight the max probability angle in red
+                max_prob_idx = wind_df['probability'].idxmax()
+                max_angle = wind_df.loc[max_prob_idx, 'wind_direction']
+                color = 'red' if angle == max_angle else 'gray'
+                ax.plot([0, x_end], [0, y_end], linestyle='--', color=color)
                 
                 # Place the angle label at the end point
-                ax.text(x_end+5, y_end, f'{270-angle}°', ha=ha, va=va, color='gray')
+                ax.text(x_end+5, y_end, f'{round(angle, 1)}°', ha=ha, va=va, color='gray')
             
     ax.set_aspect('equal', adjustable='box')
     ax.set_xlim(x.min(), x.max())

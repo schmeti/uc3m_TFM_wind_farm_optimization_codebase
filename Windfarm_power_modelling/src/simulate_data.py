@@ -114,6 +114,10 @@ def generate_wind_direction_distribution(mu=260, sd=10, wind_speed=8, turbulence
     wind_df['turbulence_intensity'] = turbulence_intensity
     wind_df = wind_df[wind_df['probability'] > 0.001].reset_index(drop=True) # remove very low probabilities
 
+    # Move to last col
+    prob_col = wind_df.pop('probability')
+    wind_df['probability'] = prob_col
+
     # Plot
     if plot:
         plt.figure(figsize=(10, 5))

@@ -1,0 +1,64 @@
+Solver command line: []
+
+Read LP format model from file /var/folders/2j/t8d8dcsn1tg5sc8l4kz4_4ch0000gn/T/tmpmns9_krj.pyomo.lp
+Reading time = 0.04 seconds
+x1: 2308 rows, 1540 columns, 56576 nonzeros
+Set parameter Threads to value 8
+Set parameter NonConvex to value 2
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (mac64[x86] - Darwin 24.5.0 24F74)
+
+CPU model: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+Thread count: 6 physical cores, 12 logical processors, using up to 8 threads
+
+Non-default parameters:
+NonConvex  2
+Threads  8
+
+Optimize a model with 2308 rows, 1540 columns and 56576 nonzeros
+Model fingerprint: 0x6434dc1d
+Model has 5 quadratic constraints
+Variable types: 790 continuous, 750 integer (750 binary)
+Coefficient statistics:
+  Matrix range     [3e-07, 1e+03]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [3e-03, 7e-01]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e-03, 5e+03]
+  QRHS range       [1e+04, 1e+04]
+Presolve removed 236 rows and 194 columns
+Presolve time: 0.46s
+Presolved: 2075 rows, 1349 columns, 48401 nonzeros
+Presolved model has 2 bilinear constraint(s)
+
+Solving non-convex MIQCP
+
+Variable types: 683 continuous, 666 integer (666 binary)
+
+Root relaxation: objective 3.003840e+04, 2408 iterations, 0.09 seconds (0.13 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 30038.4035    0  180          - 30038.4035      -     -    0s
+     0     0 24607.7722    0  299          - 24607.7722      -     -    1s
+     0     0 24569.0159    0  322          - 24569.0159      -     -    1s
+
+Cutting planes:
+  Learned: 11
+  Cover: 155
+  Implied bound: 136
+  Clique: 180
+  MIR: 312
+  Flow cover: 211
+  RLT: 40
+  Relax-and-lift: 4
+  PSD: 6
+
+Explored 1 nodes (4768 simplex iterations) in 2.29 seconds (1.48 work units)
+Thread count was 8 (of 12 available processors)
+
+Solution count 0
+
+Solve interrupted
+Best objective -, best bound 2.456901591162e+04, gap -
+

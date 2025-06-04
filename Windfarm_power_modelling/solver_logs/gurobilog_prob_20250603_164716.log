@@ -1,0 +1,91 @@
+Solver command line: []
+
+Read LP format model from file /var/folders/2j/t8d8dcsn1tg5sc8l4kz4_4ch0000gn/T/tmpkocf1gsb.pyomo.lp
+Reading time = 0.06 seconds
+x1: 4156 rows, 2772 columns, 101840 nonzeros
+Set parameter Threads to value 8
+Set parameter NonConvex to value 2
+Gurobi Optimizer version 12.0.1 build v12.0.1rc0 (mac64[x86] - Darwin 24.5.0 24F74)
+
+CPU model: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+Thread count: 6 physical cores, 12 logical processors, using up to 8 threads
+
+Non-default parameters:
+NonConvex  2
+Threads  8
+
+Optimize a model with 4156 rows, 2772 columns and 101840 nonzeros
+Model fingerprint: 0xb918dec2
+Model has 9 quadratic constraints
+Variable types: 1422 continuous, 1350 integer (1350 binary)
+Coefficient statistics:
+  Matrix range     [3e-07, 1e+03]
+  QMatrix range    [1e+00, 1e+00]
+  Objective range  [1e-03, 3e-01]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e-03, 5e+03]
+  QRHS range       [1e+04, 1e+04]
+Presolve removed 438 rows and 330 columns
+Presolve time: 0.83s
+Presolved: 3721 rows, 2445 columns, 86014 nonzeros
+Presolved model has 2 bilinear constraint(s)
+
+Solving non-convex MIQCP
+
+Variable types: 1237 continuous, 1208 integer (1208 binary)
+
+Root relaxation: objective 3.164637e+04, 3504 iterations, 0.12 seconds (0.20 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 31646.3683    0  344          - 31646.3683      -     -    1s
+     0     0 31639.0019    0  346          - 31639.0019      -     -    1s
+     0     0 31639.0003    0  346          - 31639.0003      -     -    1s
+     0     0 26006.4755    0  530          - 26006.4755      -     -    3s
+     0     0 25937.6343    0  529          - 25937.6343      -     -    3s
+     0     0 25913.7682    0  544          - 25913.7682      -     -    4s
+     0     0 23374.8429    0  647          - 23374.8429      -     -    7s
+     0     0 22393.3867    0  764          - 22393.3867      -     -    8s
+     0     0 22373.4273    0  754          - 22373.4273      -     -    8s
+     0     0 20515.9295    0  780          - 20515.9295      -     -   12s
+     0     0 20515.9017    0  777          - 20515.9017      -     -   12s
+     0     0 20067.3823    0  828          - 20067.3823      -     -   14s
+     0     0 20067.1289    0  826          - 20067.1289      -     -   14s
+H    0     0                    3329.1133045 20067.1289   503%     -   17s
+H    0     0                    3329.1137428 20067.1289   503%     -   17s
+     0     0 19533.1555    0  851 3329.11374 19533.1555   487%     -   19s
+     0     0 19532.8941    0  850 3329.11374 19532.8941   487%     -   19s
+     0     0 19428.5276    0  849 3329.11374 19428.5276   484%     -   21s
+     0     0 19427.7419    0  848 3329.11374 19427.7419   484%     -   21s
+H    0     0                    3331.4627816 19427.7419   483%     -   23s
+     0     0 19385.8214    0  851 3331.46278 19385.8214   482%     -   24s
+H    0     0                    3334.5596390 19319.7892   479%     -   26s
+H    0     0                    3335.0736677 19319.7892   479%     -   26s
+     0     0 19319.7892    0  871 3335.07367 19319.7892   479%     -   26s
+     0     0 19285.1718    0  858 3335.07367 19285.1718   478%     -   29s
+     0     0 19247.3439    0  871 3335.07367 19247.3439   477%     -   31s
+     0     0 19163.0145    0  864 3335.07367 19163.0145   475%     -   38s
+     0     0 19134.3810    0  857 3335.07367 19134.3810   474%     -   42s
+
+Cutting planes:
+  Learned: 5
+  Cover: 452
+  Implied bound: 393
+  Clique: 136
+  MIR: 563
+  Flow cover: 313
+  Inf proof: 1
+  RLT: 391
+  Relax-and-lift: 97
+  BQP: 91
+  PSD: 4
+
+Explored 1 nodes (32680 simplex iterations) in 43.57 seconds (31.98 work units)
+Thread count was 8 (of 12 available processors)
+
+Solution count 5: 3335.07 3334.56 3331.46 ... 3329.11
+
+Solve interrupted
+Best objective 3.335073667691e+03, best bound 1.913438103186e+04, gap 473.7319%
+

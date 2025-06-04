@@ -102,7 +102,7 @@ class distcl(object):
 
         return model, preds_test, y_test
     
-    def optimize_nn(self, param_grid, iters=5000, drop=0.05, learning_rate=1e-4, patience = None,plot=False):
+    def optimize_nn(self, param_grid, iters=5000, drop=0.05, learning_rate=1e-4, pacience = None,plot=False):
 
         best_params = None
         best_rmse = float('inf')
@@ -119,11 +119,11 @@ class distcl(object):
                     iters=iters,
                     drop=drop,
                     learning_rate=learning_rate,
-                    patience = patience
+                    patience = pacience
                 )
 
                 rmse = np.sqrt(mean_squared_error(y_test, preds_test))
-                grid_search.append({'n_hidden': n_hidden, 'n_nodes': n_nodes, 'mse': rmse})
+                grid_search.append({'n_hidden': n_hidden, 'n_nodes': n_nodes, 'rmse': rmse})
 
                 if rmse < best_rmse:
                     best_rmse = rmse
